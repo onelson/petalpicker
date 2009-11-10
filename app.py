@@ -1,18 +1,21 @@
-import sys, os, logging
+import sys, os, logging, uuid
+from cStringIO import StringIO
+import pil
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtCore import (QObject, QString, QFileInfo, SIGNAL)
-from PyQt4.QtGui import (QApplication, QDialog, QFileDialog, QGraphicsView, 
+from PyQt4.QtCore import (Qt, QObject, QBuffer, QByteArray, QIODevice, QString, QFileInfo, QRect, QRectF, SIGNAL)
+from PyQt4.QtGui import (QApplication, QImage, QDialog, QFileDialog, QGraphicsView, 
                          QGraphicsScene, QPainter, QHBoxLayout, QVBoxLayout, 
                          QPushButton, QPixmap, QGraphicsPixmapItem, 
-                         QMessageBox, QMatrix, )
+                         QMessageBox, QMatrix, QGraphicsRectItem)
 
 logging.getLogger().setLevel(logging.DEBUG)
 DIRTY = False
-
+PIX = None
 class GraphicsView(QGraphicsView):
-    def __init__(self, parent=None):
+    selectbox = None
+    def __init__(self, scene, parent=None):
         super(GraphicsView, self).__init__(parent)
+        self.setScene(scene)
         self.setDragMode(QGraphicsView.RubberBandDrag)
         self.setRenderHint(QPainter.Antialiasing)
         self.setRenderHint(QPainter.TextAntialiasing)
@@ -22,17 +25,38 @@ class GraphicsView(QGraphicsView):
 #        logging.debug(factor)
         self.scale(factor, factor)
     def mousePressEvent(self,event):
-        logging.debug(event.pos())
+        self.drag_start = event.pos()
     def mouseReleaseEvent(self,event):
-        logging.debug(event.pos())
+        global PIX
+        self.drag_stop = event.pos()
+        im = PIX.pixmap().toImage()
+        
+        start, stop = self.mapToScene(self.drag_start),self.mapToScene(self.drag_stop)
+        logging.debug((start,stop))
+        rect = QRectF(start,stop).normalized()
 
+        pix_rect = PIX.mapToItem(PIX,rect).toPolygon().boundingRect()
+        logging.debug(pix_rect)
+        
+        im = im.copy(pix_rect)
+        tempfile = os.path.join(os.getenv('TMP'),str(uuid.uuid4())+'.jpg')
+        im.save(tempfile, 'JPEG')
+        pil.process(tempfile)
+        augmented = QGraphicsPixmapItem(QPixmap(tempfile))
+        
+        augmented.setOffset(rect.topLeft())
+        augmented.setMatrix(QMatrix())
+        if None != self.selectbox: self.scene().removeItem(self.selectbox)
+        self.selectbox = augmented
+        self.scene().addItem(self.selectbox)
+        
 class MainForm(QDialog):
     def __init__(self, parent=None):
         super(MainForm, self).__init__(parent)
         
         self.filename = QString()
-        self.view = GraphicsView()
         self.scene = QGraphicsScene(self)
+        self.view = GraphicsView(self.scene)
 
         self.view.setScene(self.scene)
         buttonLayout = QVBoxLayout()
@@ -62,7 +86,9 @@ class MainForm(QDialog):
 
 
     def createPixmapItem(self, pixmap, matrix=QMatrix()):
+        global PIX
         item = QGraphicsPixmapItem(pixmap)
+        PIX = item
 #        item.setFlags(QGraphicsItem.ItemIsSelectable|
 #                      QGraphicsItem.ItemIsMovable)
         item.setMatrix(matrix)
