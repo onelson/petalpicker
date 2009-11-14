@@ -2,7 +2,7 @@ import sys, os, logging, uuid
 from cStringIO import StringIO
 import pil
 
-from PyQt4.QtCore import (Qt, QObject, QBuffer, QByteArray, QIODevice, QString, QFileInfo, QRect, QRectF, SIGNAL)
+from PyQt4.QtCore import (Qt, QObject, QBuffer, QByteArray, QIODevice, QString, QFileInfo, QRect, QRectF, QSize, SIGNAL)
 from PyQt4.QtGui import (QApplication, QImage, QDialog, QFileDialog, QGraphicsView, 
                          QGraphicsScene, QPainter, QHBoxLayout, QVBoxLayout, 
                          QPushButton, QPixmap, QGraphicsPixmapItem, 
