@@ -12,21 +12,23 @@ logging.getLogger().setLevel(logging.DEBUG)
 DIRTY = False
 PIX = None
 class GraphicsView(QGraphicsView):
-    selectbox = None
+    
+    rubber_band = None
+    selection = None
+    
     def __init__(self, scene, parent=None):
         super(GraphicsView, self).__init__(parent)
         self.setScene(scene)
-        self.setDragMode(QGraphicsView.RubberBandDrag)
         self.setRenderHint(QPainter.Antialiasing)
         self.setRenderHint(QPainter.TextAntialiasing)
         
     def wheelEvent(self, event):
         factor = 1.41 ** (-event.delta() / 240.0)
-#        logging.debug(factor)
         self.scale(factor, factor)
-    def mousePressEvent(self,event):
+        
+    def __mousePressEvent(self,event):
         self.drag_start = event.pos()
-    def mouseReleaseEvent(self,event):
+    def __mouseReleaseEvent(self,event):
         global PIX
         self.drag_stop = event.pos()
         im = PIX.pixmap().toImage()
@@ -49,6 +51,23 @@ class GraphicsView(QGraphicsView):
         if None != self.selectbox: self.scene().removeItem(self.selectbox)
         self.selectbox = augmented
         self.scene().addItem(self.selectbox)
+        
+    def mousePressEvent(self, event):
+        self.start = event.pos()
+        if not self.rubber_band:
+            self.rubber_band = QGraphicsRectItem(None, self.scene())
+        self.rubber_band.setRect(self.mapToScene(QRect(self.start,QSize())).boundingRect())
+        self.scene().addItem(self.rubber_band)
+        logging.info(self.__class__.__name__+' press')
+    def mouseMoveEvent(self, event):
+        if self.rubber_band:
+            self.rubber_band.setRect(self.mapToScene(QRect(self.start,event.pos()).normalized()).boundingRect())
+            logging.info(self.__class__.__name__+' move')
+    def mouseReleaseEvent(self, event):
+        if self.rubber_band:
+            self.scene().removeItem(self.rubber_band)
+            self.rubber_band = None
+        logging.info(self.__class__.__name__+' release')
         
 class MainForm(QDialog):
     def __init__(self, parent=None):
