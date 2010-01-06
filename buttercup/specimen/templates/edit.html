@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid_04">
+	{% if specimen.image %}
+	<img src="{{specimen.image.url}}" />
+	{% else %}
+	<p>no image available</p>
+	{% endif %}
+</div>
+<div class="grid_08"></div>
+<div class="clear"></div>
+<div class="grid_12">
+	<form method="post" action="{{specimen.get_absolute_url}}">
+	{{form.as_p}}
+	<input type="submit" value="Submit" />
+	</form>
+</div>
+{% endblock %}

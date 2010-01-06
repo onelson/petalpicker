@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}
+Work it.
+{% endblock %}
+{% block content %}
+<div class="grid_10">
+<img style="width: 100%;" src="{{MEDIA_URL}}{{pic}}" />
+</div>
+<div class="grid_02">
+	<form method="post" action="#" enctype="multipart/form-data">
+	{{form.as_p}}
+	<input type="submit" value="Submit" />
+	</form>
+</div>
+{% endblock %}

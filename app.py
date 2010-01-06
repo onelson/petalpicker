@@ -2,10 +2,10 @@ import sys, os, logging, uuid
 from cStringIO import StringIO
 import pil
 
-from PyQt4.QtCore import (Qt, QObject, QBuffer, QByteArray, QIODevice, QString, QFileInfo, QRect, QRectF, QSize, SIGNAL)
+from PyQt4.QtCore import (Qt, QObject, QBuffer, QByteArray, QIODevice, QString, QFileInfo, QPoint, QRect, QRectF, QSize, SIGNAL)
 from PyQt4.QtGui import (QApplication, QImage, QDialog, QFileDialog, QGraphicsView, 
                          QGraphicsScene, QPainter, QHBoxLayout, QVBoxLayout, 
-                         QPushButton, QPixmap, QGraphicsPixmapItem, 
+                         QPushButton, QPixmap, QGraphicsPixmapItem, QGraphicsEllipseItem,
                          QMessageBox, QMatrix, QGraphicsRectItem)
 
 logging.getLogger().setLevel(logging.DEBUG)
@@ -35,15 +35,7 @@ class GraphicsView(QGraphicsView):
         
         start, stop = self.mapToScene(self.drag_start),self.mapToScene(self.drag_stop)
         logging.debug((start,stop))
-        rect = QRectF(start,stop).normalized()
 
-        pix_rect = PIX.mapToItem(PIX,rect).toPolygon().boundingRect()
-        logging.debug(pix_rect)
-        
-        im = im.copy(pix_rect)
-        tempfile = os.path.join(os.getenv('TMP'),str(uuid.uuid4())+'.jpg')
-        im.save(tempfile, 'JPEG')
-        pil.process(tempfile)
         augmented = QGraphicsPixmapItem(QPixmap(tempfile))
         
         augmented.setOffset(rect.topLeft())
@@ -65,9 +57,33 @@ class GraphicsView(QGraphicsView):
             logging.info(self.__class__.__name__+' move')
     def mouseReleaseEvent(self, event):
         if self.rubber_band:
+            self.doIt(self.rubber_band.rect())
             self.scene().removeItem(self.rubber_band)
             self.rubber_band = None
         logging.info(self.__class__.__name__+' release')
+        
+    def doIt(self, rect):
+        global PIX
+        pix_rect = PIX.mapToItem(PIX,rect).toPolygon().boundingRect()
+        logging.debug(pix_rect)
+        
+        im = PIX.pixmap().toImage()
+        im = im.copy(pix_rect)
+        tempfile = os.path.join(os.getenv('TMP'),str(uuid.uuid4())+'.jpg')
+        im.save(tempfile, 'JPEG')
+        try:
+            coords = pil.process(tempfile)
+            rect = QRect(QPoint(*coords[0]),QPoint(*coords[1])).normalized()
+            logging.debug(rect)
+            zone = QGraphicsEllipseItem(QRectF(rect))
+            zone = self.rubber_band.mapFromItem()
+            self.mapFrom()
+            self.scene().addItem(zone)
+        except Exception, err:
+            logging.error(err)
+        finally:
+            os.remove(tempfile)
+        
         
 class MainForm(QDialog):
     def __init__(self, parent=None):

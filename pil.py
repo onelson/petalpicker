@@ -16,7 +16,7 @@ def process(fh):
 ##
     im = image.load()
     pix = []
-    inc = 0
+#    inc = 0
     for i in range(0,w):
         for j in range(0,h):
             threshold = range(max-RANGE,max)
@@ -29,11 +29,11 @@ def process(fh):
                     or im[i+1,j+THRESHOLD] not in threshold
                     or im[i-1,j-THRESHOLD] not in threshold)): pix.append((i,j))
             except: pass
-            inc += 1
-    im = ImageChops.duplicate(orig)
-    pa = im.load()
-    for (x,y) in pix:
-        pa[x,y] = (0,0,255)
+#            inc += 1
+#    im = ImageChops.duplicate(orig)
+#    pa = im.load()
+#    for (x,y) in pix:
+#        pa[x,y] = (0,0,255)
     
     logging.info('starting distance calculations')
     unzipped = zip(*pix)
@@ -44,11 +44,11 @@ def process(fh):
     measure = [(x[0],y[0]),
                (x[-1],y[-1])]
     logging.debug(measure)
-    draw = ImageDraw.Draw(im)
+#    draw = ImageDraw.Draw(im)
 #    coords = [(x[0],y[0]),(x[-1],y[0]),(x[-1],y[-1]),(x[0],y[-1]),(x[0],y[0])]
 #    draw.line(coords,width=1,fill='#0f0')
     coords = [(x[0],y[0]),(x[-1],y[-1])]
-    draw.rectangle(coords, outline='#0f0')
+#    draw.rectangle(coords, outline='#0f0')
     
     dist_x = (x[-1] - x[0])
     dist_y = (y[-1] - y[0])
@@ -67,8 +67,9 @@ def process(fh):
             y[-1] += extra[0]
             if extra[1]: y[-1] += extra[1]
     coords = [(x[0],y[0]),(x[-1],y[-1])]
-    logging.debug(coords)
-    draw.ellipse(coords, outline='#f00')
+    return coords
+#    logging.debug(coords)
+#    draw.ellipse(coords, outline='#f00')
 #    combo = ImageChops.screen(orig, im)
-    im.save(fh)
-    return True
+#    im.save(fh)
+#    return True

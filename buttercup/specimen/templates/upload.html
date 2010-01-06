@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid_12">
+	<form method="post" action="{{specimen.get_absolute_url}}upload/" enctype="multipart/form-data">
+	{{form.as_p}}
+	<input type="submit" value="Submit" />
+	</form>
+</div>
+{% endblock %}
