@@ -21,12 +21,11 @@ class Specimen(models.Model):
     )
     
     def get_name(self):
-        template = Template('$date.$subtype.$population.$plant_number.$flower.$morph')
+        template = Template('$date.$subtype.$population.$plant_number$flower.$morph')
         if(self.date
            and self.subtype
            and self.population
            and self.plant_number
-           and self.flower
            and self.morph):
             name = template.substitute(
                date=self.date,
@@ -44,7 +43,7 @@ class Specimen(models.Model):
     date = models.DateField()
     population = models.CharField(max_length=5)
     plant_number = models.CharField(max_length=6)
-    flower = models.CharField(max_length=1)
+    flower = models.CharField(max_length=1, blank=True)
     subtype = models.CharField(max_length=1, choices=SUBTYPE_CHOICES)
     morph = models.CharField(max_length=1, choices=MORPH_CHOICES)
     notes = models.TextField(blank=True)

@@ -30,51 +30,40 @@ def new(request):
 def edit(request,specimen_id):
     specimen = get_object_or_404(Specimen, pk=specimen_id)
     form = specimen.get_edit_form()
+    edge_form = EdgeForm()
     if 'POST' == request.method:
         form = specimen.get_edit_form(request.POST)
         if form.is_valid(): form.save()
     return render_to_response('edit.html',
                               {'title': 'editing '+specimen.name,
                                'specimen':specimen,
-                               'form':form},
+                               'form':form,
+                               'edge_form':edge_form},
                                RequestContext(request))
 
-def upload(request,specimen_id):
+def do_canny(request, specimen_id):
     specimen = get_object_or_404(Specimen, pk=specimen_id)
-    if specimen.image.name:
-        return redirect(specimen)
-    form = specimen.get_upload_form()
-    return render_to_response('upload.html',
-                              {'title': 'upload '+specimen.name,
-                               'specimen':specimen,
-                               'form':form},
-                               RequestContext(request))
-
-def pick(request):
-    form = PickForm()
-    image = None
     if 'POST' == request.method:
-        form = PickForm(request.POST, request.FILES)
-        if form.is_valid():
+        form = EdgeForm(request.POST)
+        if form.is_valid(): 
             vals = form.cleaned_data
-            # TODO: create new model instance and populate
-            dest = os.path.join(settings.MEDIA_ROOT,'files/process/tmp.jpg') # populate file dest based on slide name or model pk
-            handle_uploaded_file(request.FILES['source_img'], dest)
-            # resize image before finishing
-    return render_to_response('pick.html',{'form':form, 'pic': image},RequestContext(request))
-
-
+            from . import process
+            infile = specimen.image.path
+            outfile = os.path.join(os.path.join(os.getenv('TMP'),str(uuid4())+'.jpg'))
+            process.DoCanny(infile,outfile,vals['hi'],vals['lo'])
+            tmpfile = File(open(outfile,'rb'))
+            specimen.edge.save('edge.jpg',tmpfile,save=True)
+            tmpfile.close()
+            os.remove(outfile)
+    return redirect(specimen)
+        
+    
 from django import forms
 
 class EdgeForm(forms.Form):
-    lo = forms.FloatField(initial=90.0)
-    hi = forms.FloatField(initial=100.0)
+    lo = forms.FloatField(initial=250.0)
+    hi = forms.FloatField(initial=750.0)
 
-class PickForm(forms.Form):
-    source_img = forms.ImageField()
-    name = forms.CharField(max_length=23)
-    # TODO: override clean() to enforce regex validation of name
-    
     
 def handle_uploaded_file(f, dest):
     dest_fh = open(dest,'wb+')

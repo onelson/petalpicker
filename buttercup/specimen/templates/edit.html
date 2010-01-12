@@ -6,8 +6,18 @@
 	{% else %}
 	<p>no image available</p>
 	{% endif %}
+	{% if specimen.edge %}
+	<img src="{{specimen.edge.url}}" />
+	{% else %}
+	<p>no edge map available</p>
+	{% endif %}
 </div>
-<div class="grid_08"></div>
+<div class="grid_08">
+	<form method="post" action="{% url do_canny specimen_id=specimen.pk %}">
+	{{edge_form.as_p}}
+	<input type="submit" value="Submit" />
+	</form>
+</div>
 <div class="clear"></div>
 <div class="grid_12">
 	<form method="post" action="{{specimen.get_absolute_url}}">
