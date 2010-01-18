@@ -64,7 +64,8 @@
 <script type="text/javascript" src="{{MEDIA_URL}}lib/jquery/jquery.form.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}lib/jquery/Jcrop/jquery.Jcrop.min.js"></script>
 <script type="text/javascript">
-		$('#myFormId').submit(function() { 
+	jQuery(function($){
+		$('form#threshold').submit(function() { 
 		    $(this).ajaxSubmit({success: function(){
 				var timestamp = new Date().getTime();
 				var img_src = '{{specimen.edge.url}}';
