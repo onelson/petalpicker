@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.core.files import File
 from django.conf import settings
-import os
+import os, tempfile
 from PIL import Image
 from uuid import uuid4
 
@@ -49,7 +49,7 @@ def do_canny(request, specimen_id):
             vals = form.cleaned_data
             from . import process
             infile = specimen.image.path
-            outfile = os.path.join(os.path.join(os.getenv('TMP'),str(uuid4())+'.jpg'))
+            outfile = os.path.join(os.path.join(tempfile.gettempdir(),str(uuid4())+'.jpg'))
             process.DoCanny(infile,outfile,vals['hi'],vals['lo'])
             tmpfile = File(open(outfile,'rb'))
             try:
