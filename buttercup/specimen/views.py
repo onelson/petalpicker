@@ -47,7 +47,7 @@ def do_canny(request, specimen_id):
         form = EdgeForm(request.POST)
         if form.is_valid(): 
             vals = form.cleaned_data
-            from . import process
+#            from . import process
             infile = specimen.image.path
             outfile = os.path.join(os.path.join(tempfile.gettempdir(),str(uuid4())+'.jpg'))
             import subprocess
