@@ -1,21 +1,54 @@
 {% extends 'base.html' %}
+
+{% block extrahead %}
+<style type="text/css">
+	#viewport {
+		height: 528px;
+		background: #222;
+		position: relative;
+	}
+		
+		#viewport img {
+			position: absolute;
+			margin: 10px;
+			width: 760px;
+		}
+		#viewport #edge {
+			display: none;
+		}
+	#slider-range {
+		width: auto;
+		display: block;
+	}
+</style>
+<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}lib/jquery/Jcrop/jquery.Jcrop.css" />
+{% endblock %}
+
 {% block content %}
-<div class="grid_04">
+<div id="viewport" class="grid_10 clearfix">
 	{% if specimen.image %}
-	<img src="{{specimen.image.url}}" />
-	{% else %}
-	<p>no image available</p>
+	<img id="orig" src="{{specimen.image.url}}" />
 	{% endif %}
 	{% if specimen.edge %}
-	<img src="{{specimen.edge.url}}" />
-	{% else %}
-	<p>no edge map available</p>
+	<img id="edge" src="{{specimen.edge.url}}" />
 	{% endif %}
 </div>
-<div class="grid_08">
-	<form method="post" action="{% url do_canny specimen_id=specimen.pk %}">
+<div id="tools" class="grid_2">
+	<ul>
+		<li>
+			<button id="measure">measure</button>
+		</li>
+		<li>
+			<button id="vis">toggle edge map</button>
+		</li>
+		<li>
+			<label for="dim"><input type="checkbox" id="dim" /> dim edge map</label>
+		</li>
+	</ul>
+	
+	<form id='threshold' method="post" action="{% url do_canny specimen_id=specimen.pk %}">
 	{{edge_form.as_p}}
-	<input type="submit" value="Submit" />
+	<input type="submit" value="update edge map" />
 	</form>
 </div>
 <div class="clear"></div>
@@ -25,4 +58,87 @@
 	<input type="submit" value="Submit" />
 	</form>
 </div>
+{% endblock %}
+
+{% block foot_js %}
+<script type="text/javascript" src="{{MEDIA_URL}}lib/jquery/Jcrop/jquery.Jcrop.min.js"></script>
+<script type="text/javascript">
+	jQuery(function($)  {
+		$('form#threshold p').hide(0)
+		$('form#threshold').prepend($('<div/>').attr('id','slider-range'))
+		$("#slider-range").slider({
+			range: true,
+			min: 0,
+			max: 1200,
+			values: [250, 750],
+			slide: function(event, ui) {
+				$('#id_lo').val(ui.values[0]);
+				$('#id_hi').val(ui.values[1]);
+			}
+		});
+		$('#id_lo').val($('#slider-range').slider('values', 0));
+		$('#id_hi').val($('#slider-range').slider('values', 1));
+		
+		$('#vis').click(function(){
+			$edge = $('#edge')
+			if ($edge.length == true){
+				$edge.toggle()
+			}
+		}).change();
+		
+		$('#dim').change(function(){
+			$edge = $('#edge')
+			if ($edge.length == true){
+				opac = $(this).is(':checked') ? 0.60 : 1;
+				$edge.fadeTo('fast', opac)
+			}
+		}).change();
+		window.$jcropper = null;
+		$('#measure').toggle(
+			function(){
+				window.$jcropper = $.Jcrop('#edge',{
+					aspectRatio: 1,
+					onSelect: function(c){console.log(c)},
+					bgOpacity: 0.7
+				});
+			},
+			function(){
+				window.$jcropper.destroy();
+			}
+		);
+		
+		app = new function Application(){
+			DEBUG = true
+			this.mode = {
+				VIEW: 'view mode',
+				EDGE: 'edge mode',
+				AREA: 'area mode',
+				SCALE: 'scale mode',
+			}
+			
+			_mode = this.mode.VIEW;
+			
+			this.getMode = function(){
+				return _mode;
+			}
+			
+			this.setMode = function(m){
+				match = false
+				for(modeName in this.mode){
+					if (m == this.mode[modeName]){
+						match = true
+						break;
+					}
+				}
+				if(!match){
+					throw 'invalid app mode';
+				}
+				_mode = m;
+				if(DEBUG){ console.log('set mode: '+this.getMode())}
+				return this;
+			}
+		};
+		
+	});
+</script>
 {% endblock %}

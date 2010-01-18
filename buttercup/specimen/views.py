@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.core.files import File
@@ -22,7 +22,7 @@ def new(request):
             spec = Specimen.objects.create(**vals)
             spec.image.save('original.jpg', im, save=True)
             pi = Image.open(spec.image.path)
-            pi.thumbnail((1024,1024))
+            pi.thumbnail((760,508))
             pi.save(spec.image.path)
             return redirect(spec)
     return render_to_response('new.html',{'title': 'new specimen',
@@ -52,21 +52,18 @@ def do_canny(request, specimen_id):
             outfile = os.path.join(os.path.join(os.getenv('TMP'),str(uuid4())+'.jpg'))
             process.DoCanny(infile,outfile,vals['hi'],vals['lo'])
             tmpfile = File(open(outfile,'rb'))
+            try:
+                specimen.edge.path
+                specimen.edge.delete(save=True)
+            except ValueError:
+                # if accessing edge.path raises ValueError, there is no file to delete
+                pass
             specimen.edge.save('edge.jpg',tmpfile,save=True)
             tmpfile.close()
             os.remove(outfile)
     return redirect(specimen)
-        
-    
-from django import forms
 
+from django import forms
 class EdgeForm(forms.Form):
     lo = forms.FloatField(initial=250.0)
     hi = forms.FloatField(initial=750.0)
-
-    
-def handle_uploaded_file(f, dest):
-    dest_fh = open(dest,'wb+')
-    for chunk in f.chunks():
-        dest_fh.write(chunk)
-    dest_fh.close()
