@@ -50,7 +50,9 @@ def do_canny(request, specimen_id):
             from . import process
             infile = specimen.image.path
             outfile = os.path.join(os.path.join(tempfile.gettempdir(),str(uuid4())+'.jpg'))
-            process.DoCanny(infile,outfile,vals['hi'],vals['lo'])
+            import subprocess
+            subprocess.check_call(list('python2.6',os.path.join(settings.PROJECT_ROOT, 'specimen','process.py'),infile,outfile,vals['hi'],vals['lo']))
+#            process.DoCanny()
             tmpfile = File(open(outfile,'rb'))
             try:
                 specimen.edge.path
