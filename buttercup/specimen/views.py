@@ -52,7 +52,7 @@ def do_canny(request, specimen_id):
             outfile = os.path.join(os.path.join(tempfile.gettempdir(),str(uuid4())+'.jpg'))
             import subprocess
             cmd = ' '.join(['python2.6',os.path.join(settings.PROJECT_ROOT, 'specimen','process.py'),infile,outfile,str(vals['hi']),str(vals['lo'])])
-            subprocess.check_call(cmd)
+            subprocess.check_call(cmd, shell=True)
 #            process.DoCanny()
             tmpfile = File(open(outfile,'rb'))
             try:
