@@ -61,9 +61,18 @@
 {% endblock %}
 
 {% block foot_js %}
+<script type="text/javascript" src="{{MEDIA_URL}}lib/jquery/jquery.form.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}lib/jquery/Jcrop/jquery.Jcrop.min.js"></script>
 <script type="text/javascript">
-	jQuery(function($)  {
+		$('#myFormId').submit(function() { 
+		    $(this).ajaxSubmit({success: function(){
+				var timestamp = new Date().getTime();
+				var img_src = '{{specimen.edge.url}}';
+	     		$('#edge').attr('src',img_src+'?'+timestamp);
+			}}); 
+		    return false;
+		}); 
+		
 		$('form#threshold p').hide(0)
 		$('form#threshold').prepend($('<div/>').attr('id','slider-range'))
 		$("#slider-range").slider({
@@ -77,9 +86,6 @@
 			},
 			change: function(event, ui){
 				$('form#threshold').submit()
-				var timestamp = new Date().getTime();
-				var img_src = '{{specimen.edge.url}}';
-	     		$('#edge').attr('src',img_src+'?'+timestamp);
 			}
 		});
 		$('#id_lo').val($('#slider-range').slider('values', 0));
