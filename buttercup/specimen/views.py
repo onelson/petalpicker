@@ -64,6 +64,8 @@ def do_canny(request, specimen_id):
             specimen.edge.save('edge.jpg',tmpfile,save=True)
             tmpfile.close()
             os.remove(outfile)
+    if request.is_ajax():
+        return HttpResponse()        
     return redirect(specimen)
 
 from django import forms
