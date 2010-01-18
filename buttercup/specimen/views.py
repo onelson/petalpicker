@@ -65,5 +65,5 @@ def do_canny(request, specimen_id):
 
 from django import forms
 class EdgeForm(forms.Form):
-    lo = forms.FloatField(initial=250.0)
+    lo = forms.FloatField(initial=150.0)
     hi = forms.FloatField(initial=750.0)
