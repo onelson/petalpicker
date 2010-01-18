@@ -35,10 +35,10 @@
 <div id="tools" class="grid_2">
 	<ul>
 		<li>
-			<button id="measure">measure</button>
+			<label for="measure"><input type="checkbox" id="measure" /> measure</label>
 		</li>
 		<li>
-			<button id="vis">toggle edge map</button>
+			<label for="vis"><input type="checkbox" id="vis" /> show edge map</label>
 		</li>
 		<li>
 			<label for="dim"><input type="checkbox" id="dim" /> dim edge map</label>
@@ -91,12 +91,18 @@
 		$('#id_lo').val($('#slider-range').slider('values', 0));
 		$('#id_hi').val($('#slider-range').slider('values', 1));
 		
-		$('#vis').click(function(){
-			$edge = $('#edge')
-			if ($edge.length == true){
-				$edge.toggle()
+		$('#vis').change(
+			function(){
+				$edge = $('#edge')
+				if ($edge.length == true){
+					if($(this).is(':checked')){
+						$edge.show()
+					} else {
+						$edge.hide()
+					}
+				}
 			}
-		}).change();
+		).change();
 		
 		$('#dim').change(function(){
 			$edge = $('#edge')
@@ -105,17 +111,18 @@
 				$edge.fadeTo('fast', opac)
 			}
 		}).change();
-		window.$jcropper = null;
-		$('#measure').toggle(
+		$jcropper = null;
+		$('#measure').change(
 			function(){
-				window.$jcropper = $.Jcrop('#edge',{
-					aspectRatio: 1,
-					onSelect: function(c){console.log(c)},
-					bgOpacity: 0.2
-				});
-			},
-			function(){
-				window.$jcropper.destroy();
+				if($(this).is(':checked')){
+					$jcropper = $.Jcrop('#edge',{
+						aspectRatio: 1,
+						onSelect: function(c){console.log(c)},
+						bgOpacity: 0.2
+					});	
+				} else {
+					$jcropper.destroy();
+				}
 			}
 		);
 		
