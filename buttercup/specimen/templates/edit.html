@@ -73,7 +73,7 @@
 		    return false;
 		}); 
 		
-		$('form#threshold p').hide(0)
+		$('form#threshold p').add($('form#threshold input[type=submit]')).hide(0)
 		$('form#threshold').prepend($('<div/>').attr('id','slider-range'))
 		$("#slider-range").slider({
 			range: true,
