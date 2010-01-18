@@ -4,7 +4,7 @@
 <style type="text/css">
 	#viewport {
 		height: 528px;
-		background: #222;
+		background: #000;
 		position: relative;
 	}
 		
@@ -74,6 +74,12 @@
 			slide: function(event, ui) {
 				$('#id_lo').val(ui.values[0]);
 				$('#id_hi').val(ui.values[1]);
+			},
+			change: function(event, ui){
+				$('form#threshold').submit()
+				var timestamp = new Date().getTime();
+				var img_src = '{{specimen.edge.url}}';
+	     		$('#edge').attr('src',img_src+'?'+timestamp);
 			}
 		});
 		$('#id_lo').val($('#slider-range').slider('values', 0));
