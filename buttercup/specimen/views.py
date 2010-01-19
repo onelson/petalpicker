@@ -22,7 +22,7 @@ def new(request):
             spec = Specimen.objects.create(**vals)
             spec.image.save('original.jpg', im, save=True)
             pi = Image.open(spec.image.path)
-            pi.thumbnail((780,508))
+            pi.thumbnail((780,521))
             pi.save(spec.image.path)
             return redirect(spec)
     return render_to_response('new.html',{'title': 'new specimen',
