@@ -91,6 +91,9 @@
 		$('#id_lo').val($('#slider-range').slider('values', 0));
 		$('#id_hi').val($('#slider-range').slider('values', 1));
 		
+		$('#dim').add($('#measure')).attr('checked', false)
+		$('#vis').attr('checked', $('#edge').is(':visible'))
+		
 		$('#vis').change(
 			function(){
 				$edge = $('#edge')
