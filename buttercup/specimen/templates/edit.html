@@ -64,13 +64,17 @@
 <script type="text/javascript" src="{{MEDIA_URL}}lib/jquery/Jcrop/jquery.Jcrop.min.js"></script>
 <script type="text/javascript">
 	jQuery(function($){
-		$('form#threshold').submit(function() { 
+		$('form#threshold').submit(function() {
+			{% if specimen.edge %} 
 		    $(this).ajaxSubmit({success: function(){
 				var timestamp = new Date().getTime();
 				var img_src = '{{specimen.edge.url}}';
 	     		$('#edge').attr('src',img_src+'?'+timestamp);
 			}}); 
 		    return false;
+			{% else %}
+			return true;
+			{% endif %}
 		}); 
 		
 		$('form#threshold p').add($('form#threshold input[type=submit]')).hide(0)
