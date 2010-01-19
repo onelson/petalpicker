@@ -3,14 +3,14 @@
 {% block extrahead %}
 <style type="text/css">
 	#viewport {
-		height: 528px;
+		height: 521px;
 		background: #000;
 		position: relative;
 	}
 		
 		#viewport img {
 			position: absolute;
-			margin: 10px;
+			margin: 0px;
 		}
 		#viewport #edge {
 			display: none;
@@ -65,16 +65,12 @@
 <script type="text/javascript">
 	jQuery(function($){
 		$('form#threshold').submit(function() {
-			{% if specimen.edge %} 
 		    $(this).ajaxSubmit({success: function(){
 				var timestamp = new Date().getTime();
 				var img_src = '{{specimen.edge.url}}';
 	     		$('#edge').attr('src',img_src+'?'+timestamp);
 			}}); 
 		    return false;
-			{% else %}
-			return true;
-			{% endif %}
 		}); 
 		
 		$('form#threshold p').add($('form#threshold input[type=submit]')).hide(0)
