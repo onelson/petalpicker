@@ -29,6 +29,8 @@ def new(request):
                                           'form':form},RequestContext(request))
 def edit(request,specimen_id):
     specimen = get_object_or_404(Specimen, pk=specimen_id)
+    if not specimen.edge: 
+        run_first_canny(specimen)
     form = specimen.get_edit_form()
     edge_form = EdgeForm()
     if 'POST' == request.method:
@@ -41,19 +43,37 @@ def edit(request,specimen_id):
                                'edge_form':edge_form},
                                RequestContext(request))
 
+def run_first_canny(specimen):
+    """
+    FIXME: Must refactor!
+    """
+    infile = specimen.image.path
+    outfile = os.path.join(os.path.join(tempfile.gettempdir(),str(uuid4())+'.jpg'))
+    import subprocess
+    cmd = ' '.join(['python2.6',os.path.join(settings.PROJECT_ROOT, 'specimen','process.py'),infile,outfile])
+    subprocess.check_call(cmd, shell=True)
+    tmpfile = File(open(outfile,'rb'))
+    try:
+        specimen.edge.path
+        specimen.edge.delete(save=True)
+    except ValueError:
+        # if accessing edge.path raises ValueError, there is no file to delete
+        pass
+    specimen.edge.save('edge.jpg',tmpfile,save=True)
+    tmpfile.close()
+    os.remove(outfile)
+
 def do_canny(request, specimen_id):
     specimen = get_object_or_404(Specimen, pk=specimen_id)
     if 'POST' == request.method:
         form = EdgeForm(request.POST)
         if form.is_valid(): 
             vals = form.cleaned_data
-#            from . import process
             infile = specimen.image.path
             outfile = os.path.join(os.path.join(tempfile.gettempdir(),str(uuid4())+'.jpg'))
             import subprocess
             cmd = ' '.join(['python2.6',os.path.join(settings.PROJECT_ROOT, 'specimen','process.py'),infile,outfile,str(vals['hi']),str(vals['lo'])])
             subprocess.check_call(cmd, shell=True)
-#            process.DoCanny()
             tmpfile = File(open(outfile,'rb'))
             try:
                 specimen.edge.path
