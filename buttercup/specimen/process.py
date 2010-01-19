@@ -10,7 +10,7 @@ def DoCanny(infile, outfile, lowThresh=LOW, highThresh=HIGH, aperature=APERATURE
 
     lowThresh = float(lowThresh)
     highThresh = float(highThresh)
-    pi = ImageOps.posterize(ImageOps.grayscale(Image.open(infile)), 6)
+    pi = ImageOps.grayscale(Image.open(infile))
     cv_img = cv.CreateImageHeader(pi.size, IPL_DEPTH_8U, 1)
     cv.SetData(cv_img, pi.tostring(), pi.size[0])
     out = cv.CreateImage(cv.GetSize(cv_img), IPL_DEPTH_8U, 1)
