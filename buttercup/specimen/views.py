@@ -29,9 +29,7 @@ def new(request):
                                           'form':form},RequestContext(request))
 def edit(request,specimen_id):
     specimen = get_object_or_404(Specimen, pk=specimen_id)
-    try: 
-        specimen.edge.path
-    except:
+    if not specimen.edge:
         run_first_canny(specimen)
     form = specimen.get_edit_form()
     edge_form = EdgeForm()
