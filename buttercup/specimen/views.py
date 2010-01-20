@@ -6,7 +6,7 @@ from django.conf import settings
 import os, tempfile
 from PIL import Image, ImageOps
 from uuid import uuid4
-import simplejson as json
+from django.utils import simplejson as json
 
 from .models import Specimen
 def list(request):
