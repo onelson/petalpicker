@@ -100,7 +100,7 @@ def calc_bbox(request, specimen_id):
     h = int(request.POST['h'])
     
     specimen = get_object_or_404(Specimen, pk=specimen_id)
-    crop = ImageOps.grayscale(Image.open(specimen.edge.path)).crop((x,y,x2,y2))
+    crop = ImageOps.grayscale(Image.open(specimen.edge.path).crop((x,y,x2,y2)))
     
     (width,height) = crop.size
     im = crop.load()
@@ -108,7 +108,7 @@ def calc_bbox(request, specimen_id):
     pix = []
     for i in range(0,width):
         for j in range(0,height):
-            if im[i,j] > 0: pix.append((i,j))
+            if 0 < im[i,j]: pix.append((i,j))
     unzipped = zip(*pix)
     x = list(unzipped[0])
     y = list(unzipped[1])
@@ -120,7 +120,6 @@ def calc_bbox(request, specimen_id):
             'y2': y[-1],
             'w': x[-1]-x[0],
             'h': y[-1]-y[0]}
-    
     response = HttpResponse()
     response['Content-Type'] = 'text/javascript'
     response['Pragma'] = 'no-cache'
