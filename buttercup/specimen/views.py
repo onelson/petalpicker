@@ -9,7 +9,7 @@ from uuid import uuid4
 from django.utils import simplejson as json
 
 from .models import Specimen
-def list(request):
+def specimen_list(request):
     specs = Specimen.objects.all()
     return render_to_response('list.html',{'title': 'specimen list',
                                            'specimens': specs},RequestContext(request))
@@ -120,10 +120,8 @@ def calc_bbox(request, specimen_id):
             'y2': y[-1],
             'w': x[-1]-x[0],
             'h': y[-1]-y[0]}
-    response = HttpResponse(json.dumps(bbox), content_type='text/javascript')
-    response['Pragma'] = 'no-cache'
     
-    return response
+    return HttpResponse(json.dumps(bbox), content_type='text/javascript')
 
 from django import forms
 class EdgeForm(forms.Form):
