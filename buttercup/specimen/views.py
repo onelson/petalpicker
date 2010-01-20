@@ -100,9 +100,10 @@ def calc_bbox(request, specimen_id):
     h = int(request.POST['h'])
     
     specimen = get_object_or_404(Specimen, pk=specimen_id)
-    im = ImageOps.grayscale(Image.open(specimen.edge.path)).crop((x,y,x2,y2)).load()
+    crop = ImageOps.grayscale(Image.open(specimen.edge.path)).crop((x,y,x2,y2))
     
-    (width,height) = im.size
+    (width,height) = crop.size
+    im = crop.load()
     
     pix = []
     for i in range(0,width):
