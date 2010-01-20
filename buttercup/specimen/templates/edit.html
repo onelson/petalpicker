@@ -122,7 +122,15 @@
 //						aspectRatio: 1,
 						onSelect: function(c){
 							url = '{% url calc_bbox specimen_id=specimen.pk %}'
-							$.post(url, c, function(data){
+							coords = {
+								h: c.h,
+								w: c.w,
+								x: c.x,
+								x2: c.x2,
+								y: c.y,
+								y2: c.y2
+							}
+							$.post(url, coords, function(data){
 								console.log(data)
 							}, 'json');
 						},

@@ -89,11 +89,11 @@ def do_canny(request, specimen_id):
         return HttpResponse()        
     return redirect(specimen)
 
-def calc_bbox(request, specimen_id, x, y, x2, y2, w, h):
+def calc_bbox(request, specimen_id, h, w, x, x2, y, y2):
     if not request.is_ajax(): return HttpResponseServerError()
     
     specimen = get_object_or_404(Specimen, pk=specimen_id)
-    im = Image.open(specimen.edge.path, "L").crop((x,y,x2,y2)).load()
+    im = Image.open(specimen.edge.path, "L").crop((int(x),int(y),int(x2),int(y2))).load()
     
     (w,h) = im.size
     
