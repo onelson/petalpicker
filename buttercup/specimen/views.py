@@ -2,11 +2,11 @@ from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.core.files import File
-from django.core import serializers
 from django.conf import settings
 import os, tempfile
 from PIL import Image, ImageOps
 from uuid import uuid4
+import simplejson as json
 
 from .models import Specimen
 def list(request):
@@ -120,11 +120,9 @@ def calc_bbox(request, specimen_id):
             'y2': y[-1],
             'w': x[-1]-x[0],
             'h': y[-1]-y[0]}
-    response = HttpResponse()
-    response['Content-Type'] = 'text/javascript'
+    response = HttpResponse(json.dumps(bbox), content_type='text/javascript')
     response['Pragma'] = 'no-cache'
-    serializer = serializers.get_serializer('json')()
-    serializer.serialize(bbox, ensure_ascii=False, stream=response)
+    
     return response
 
 from django import forms
