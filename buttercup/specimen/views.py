@@ -113,9 +113,12 @@ def calc_bbox(request, specimen_id, x, y, x2, y2, w, h):
             'w': x[-1]-x[0],
             'h': y[-1]-y[0]}
     
-    response = HttpResponse(content_type='text/javascript')
+    response = HttpResponse()
+    response['Content-Type'] = 'text/javascript'
+    response['Pragma'] = 'no-cache'
     serializer = serializers.get_serializer('json')()
-    return serializer.serialize(bbox, ensure_ascii=False, stream=response)
+    serializer.serialize(bbox, ensure_ascii=False, stream=response)
+    return response
 
 from django import forms
 class EdgeForm(forms.Form):
