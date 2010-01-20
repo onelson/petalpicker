@@ -89,17 +89,24 @@ def do_canny(request, specimen_id):
         return HttpResponse()        
     return redirect(specimen)
 
-def calc_bbox(request, specimen_id, h, w, x, x2, y, y2):
-    if not request.is_ajax(): return HttpResponseServerError()
+def calc_bbox(request, specimen_id):
+    if not request.is_ajax() or not 'POST' == request.method: return HttpResponseServerError()
+    
+    x = int(request.POST['x'])
+    x2 = int(request.POST['x2'])
+    y = int(request.POST['y'])
+    y2 = int(request.POST['y2'])
+    w = int(request.POST['w'])
+    h = int(request.POST['h'])
     
     specimen = get_object_or_404(Specimen, pk=specimen_id)
-    im = Image.open(specimen.edge.path, "L").crop((int(x),int(y),int(x2),int(y2))).load()
+    im = Image.open(specimen.edge.path, "L").crop((x,y,x2,y2)).load()
     
-    (w,h) = im.size
+    (width,height) = im.size
     
     pix = []
-    for i in range(0,w):
-        for j in range(0,h):
+    for i in range(0,width):
+        for j in range(0,height):
             if im[i,j] > 0: pix.append((i,j))
     unzipped = zip(*pix)
     x = list(unzipped[0])
