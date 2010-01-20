@@ -6,5 +6,6 @@ urlpatterns = patterns('buttercup.specimen.views',
     url(r'edit/(?P<specimen_id>\d+)/$', 'edit', name='edit_specimen'),
     url(r'edit/(?P<specimen_id>\d+)/upload/$', 'edit', name='upload_specimen'),
     url(r'edit/(?P<specimen_id>\d+)/do_canny/$', 'do_canny', name='do_canny'),
+    url(r'edit/(?P<specimen_id>\d+)/calc_bbox/$', 'do_canny', name='calc_bbox'),
     (r'$', 'list'),
 )

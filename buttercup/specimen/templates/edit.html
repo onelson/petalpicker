@@ -120,7 +120,12 @@
 				if($(this).is(':checked')){
 					$jcropper = $.Jcrop('#edge',{
 //						aspectRatio: 1,
-						onSelect: function(c){console.log(c)},
+						onSelect: function(c){
+							url = '{% url calc_bbox specimen_id=specimen.pk %}'
+							$.post(url, c, function(data){
+								console.log(data)
+							}, 'json');
+						},
 						bgOpacity: 0.2
 					});	
 				} else {

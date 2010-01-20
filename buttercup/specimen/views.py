@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.core.files import File
+from django.core import serializers
 from django.conf import settings
 import os, tempfile
 from PIL import Image
@@ -88,7 +89,36 @@ def do_canny(request, specimen_id):
         return HttpResponse()        
     return redirect(specimen)
 
+def calc_bbox(request, specimen_id, x, y, x2, y2, w, h):
+    if not request.is_ajax(): return HttpResponseServerError()
+    
+    specimen = get_object_or_404(Specimen, pk=specimen_id)
+    im = Image.open(specimen.edge.path, "L").crop((x,y,x2,y2)).load()
+    
+    (w,h) = im.size
+    
+    pix = []
+    for i in range(0,w):
+        for j in range(0,h):
+            if im[i,j] > 0: pix.append((i,j))
+    unzipped = zip(*pix)
+    x = list(unzipped[0])
+    y = list(unzipped[1])
+    x.sort()
+    y.sort()
+    bbox = {'x': x[0],
+            'y': y[0],
+            'x2': x[-1],
+            'y2': y[-1],
+            'w': x[-1]-x[0],
+            'h': y[-1]-y[0]}
+    
+    response = HttpResponse()
+    response['Content-type'] = 'text/javascript'
+    serializer = serializers.get_serializer('json')()
+    return serializer.serialize(bbox, ensure_ascii=False, stream=response)
+
 from django import forms
 class EdgeForm(forms.Form):
-    lo = forms.FloatField(initial=150.0)
-    hi = forms.FloatField(initial=750.0)
+    lo = forms.FloatField(initial=90.0)
+    hi = forms.FloatField(initial=700.0)
