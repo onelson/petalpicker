@@ -5,7 +5,7 @@ from django.core.files import File
 from django.core import serializers
 from django.conf import settings
 import os, tempfile
-from PIL import Image
+from PIL import Image, ImageOps
 from uuid import uuid4
 
 from .models import Specimen
@@ -100,7 +100,7 @@ def calc_bbox(request, specimen_id):
     h = int(request.POST['h'])
     
     specimen = get_object_or_404(Specimen, pk=specimen_id)
-    im = Image.open(specimen.edge.path, "L").crop((x,y,x2,y2)).load()
+    im = ImageOps.grayscale(Image.open(specimen.edge.path)).crop((x,y,x2,y2)).load()
     
     (width,height) = im.size
     
