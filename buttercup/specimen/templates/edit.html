@@ -195,7 +195,13 @@
 				$('#viewport').css('cursor','default').unbind('click');
 				if(2 == SCALE.length){
 					pixels = distance(SCALE[0].x,SCALE[0].y,SCALE[1].x,SCALE[1].y)
-					$('#scale').text(''+pixels/20+' pix/mm');
+					scale = pixels/20
+					// refresh radius as needed
+					// store in db
+					url = '{% url store_scale specimen_id=specimen.pk %}'
+					$.post(url, {'scale': scale}, function(data, status){
+						$('#scale').text(''+scale+' pix/mm');
+					});
 				} else {
 					SCALE = []
 				}

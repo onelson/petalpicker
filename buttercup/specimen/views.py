@@ -129,6 +129,14 @@ def calc_bbox(request, specimen_id):
     specimen.save()
     return HttpResponse(json.dumps(bbox), content_type='text/javascript')
 
+def store_scale(request, specimen_id):
+    if not request.is_ajax() or not 'POST' == request.method: 
+        return HttpResponseServerError()
+    scale = float(request.POST['scale'])
+    specimen = get_object_or_404(Specimen, pk=specimen_id)
+    specimen.scale = scale
+    return HttpResponse()
+    
 from django import forms
 class EdgeForm(forms.Form):
     lo = forms.FloatField(initial=90.0)
