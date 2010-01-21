@@ -135,6 +135,7 @@ def store_scale(request, specimen_id):
     scale = float(request.POST['scale'])
     specimen = get_object_or_404(Specimen, pk=specimen_id)
     specimen.scale = scale
+    specimen.save()
     return HttpResponse()
     
 from django import forms
