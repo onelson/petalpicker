@@ -58,6 +58,12 @@ class Specimen(models.Model):
     circle_perimeter = models.FloatField(null=True, editable=False)
     circle_area = models.FloatField(null=True, editable=False)
     
+    def get_radius(self):
+        r = self.circle_radius
+        if self.scale:
+           r = r * self.scale
+        return r
+    
     @staticmethod
     def get_new_form(*args, **kwargs):
         return NewSpecimenForm(*args, **kwargs)

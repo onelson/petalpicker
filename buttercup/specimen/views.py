@@ -121,7 +121,12 @@ def calc_bbox(request, specimen_id):
             'w': x[-1]-x[0],
             'h': y[-1]-y[0]}
     bbox['max'] = max(bbox['w'],bbox['h'])
-    
+    bbox['radius'] = bbox['max']/2
+    if specimen.scale: 
+        bbox['scale'] = specimen.scale
+        bbox['scaled_radius'] = bbox['scale']*bbox['radius']
+    specimen.circle_radius = bbox['radius']
+    specimen.save()
     return HttpResponse(json.dumps(bbox), content_type='text/javascript')
 
 from django import forms

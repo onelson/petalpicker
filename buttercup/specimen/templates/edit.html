@@ -49,6 +49,30 @@
 	{{edge_form.as_p}}
 	<input type="submit" value="update edge map" />
 	</form>
+	<h2>Measurements</h2>
+	<dl>
+		<dt>scale</dt>
+		<dd id="scale">
+			{% if specimen.scale %}
+			{{specimen.scale}} pix/mm
+			{% else %}
+			undefined
+			{% endif %}
+		</dd>
+		<dt>circle radius</dt>
+		<dd id="radius">
+			{% if specimen.circle_radius %}
+				{{specimen.get_radius}} 
+				{% if specimen.scale %}
+				mm
+				{% else %}
+				pix
+				{% endif %}
+			{% else %}
+				undefined
+			{% endif %}
+		</dd>
+	</dl>
 </div>
 <div class="clear"></div>
 <div class="grid_12">
@@ -122,8 +146,15 @@
 //						aspectRatio: 1,
 						onSelect: function(c){
 							url = '{% url calc_bbox specimen_id=specimen.pk %}'
-							$.post(url, c, function(data){
-								console.log(data)
+							$.post(url, c, function(data, status){
+								if ('success' == status){
+									if(!!data.scale){
+										radius = data.radius+' mm';
+									} else {
+										radius = data.radius+' pix';
+									}
+									$('#radius').text(radius);
+								}
 							}, 'json');
 						},
 						bgOpacity: 0.2
