@@ -35,6 +35,9 @@
 <div id="tools" class="grid_2">
 	<ul>
 		<li>
+			<label for="capture"><input type="checkbox" id="capture" /> capture scale</label>
+		</li>
+		<li>
 			<label for="measure"><input type="checkbox" id="measure" /> measure</label>
 		</li>
 		<li>
@@ -164,6 +167,40 @@
 				}
 			}
 		);
+		SCALE = []
+		function distance(x1,y1,x2,y2) {
+			//find horizontal distance (x)
+			var x = x2 - x1;
+			//find vertical distance (y)
+			var y = y2 - y1;
+			//do calculation
+			var hyp = Math.sqrt(x*x + y*y);
+			return hyp;
+		}
+		$('#capture').change(function(){
+			if($(this).is(':checked')){
+				$('#viewport').css('cursor','cross-hair').click(function(e){
+			        var x = e.pageX - this.offsetLeft;
+			        var y = e.pageY - this.offsetTop;
+					if (SCALE.length >= 2){
+						SCALE = [];
+					}
+					SCALE.append({'x':x,'y':y})
+			        $('#scale').text("X: " + x + " Y: " + y);
+					if(2 == SCALE.length){
+						$('#capture').attr('checked', false).change();
+					} 
+			    });
+			} else {
+				$('#viewport').css('cursor','default').unbind('click');
+				if(2 == SCALE.length){
+					pixels = distance(SCALE[0].x,SCALE[0].y,SCALE[1].x,SCALE[1].y)
+					$('#scale').text(''+pixels/20+' pix/mm');
+				} else {
+					SCALE = []
+				}
+			}
+		});
 		
 		app = new function Application(){
 			DEBUG = true
