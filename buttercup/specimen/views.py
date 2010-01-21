@@ -120,6 +120,7 @@ def calc_bbox(request, specimen_id):
             'y2': y[-1],
             'w': x[-1]-x[0],
             'h': y[-1]-y[0]}
+    bbox['max'] = max(bbox['w'],bbox['h'])
     
     return HttpResponse(json.dumps(bbox), content_type='text/javascript')
 
