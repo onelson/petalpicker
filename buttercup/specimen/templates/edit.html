@@ -15,55 +15,63 @@
 		#viewport #edge {
 			display: none;
 		}
-	#slider-range {
-		width: auto;
+	#id_notes {
+		width: 100%;
+		height: 200px;
 		display: block;
 	}
+	#edge_vis h5 { margin-bottom: 2px; }
+	#tools button { width: 100%; margin: 2px 0; }
+	#tools #slider-range {
+		width: auto;
+		display: block; 
+		margin: 2px 0; 
+	}
+	#status-bar { color: #80ff80;  font-weight: bolder; background-color: #555555; padding: 2px 6px; z-index: 100; position:absolute;}
 </style>
 <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}lib/jquery/Jcrop/jquery.Jcrop.css" />
 {% endblock %}
 
 {% block content %}
-<div id="viewport" class="grid_10 clearfix">
-	{% if specimen.image %}
-	<img id="orig" src="{{specimen.image.url}}" />
-	{% endif %}
-	{% if specimen.edge %}
-	<img id="edge" src="{{specimen.edge.url}}" />
-	{% endif %}
+<div class="grid_9">
+	<h1>{{title}}</h1>
 </div>
+<div class="grid_3">
+	<h6 style="margin-bottom: 0;">edgemap opacity:</h6>
+	<div id="edge_vis">
+		<label for="opac_low">low</label>
+		<input name="edge_opac" id="opac_low" type="radio" value="0.3" />
+		<label for="opac_med">med</label>
+		<input name="edge_opac" id="opac_med" type="radio" value="0.6" checked="checked" />
+		<label for="opac_high">high</label>
+		<input name="edge_opac" id="opac_high" type="radio" value="1" />
+	</div>
+</div>
+<div class="clear"></div>
 <div id="tools" class="grid_2">
-	<ul>
-		<li>
-			<label for="capture"><input type="checkbox" id="capture" /> capture scale</label>
-		</li>
-		<li>
-			<label for="measure"><input type="checkbox" id="measure" /> measure</label>
-		</li>
-		<li>
-			<label for="vis"><input type="checkbox" id="vis" /> show edge map</label>
-		</li>
-		<li>
-			<label for="dim"><input type="checkbox" id="dim" /> dim edge map</label>
-		</li>
-	</ul>
-	
-	<form id='threshold' method="post" action="{% url do_canny specimen_id=specimen.pk %}">
-	{{edge_form.as_p}}
-	<input type="submit" value="update edge map" />
-	</form>
-	<h2>Measurements</h2>
-	<dl>
-		<dt>scale</dt>
-		<dd id="scale">
+	<button id="set_scale" help="Click twice (2cm apart) to set the scale.">set scale</button>
+	<button id="edit_edge" help="Adjust the slider to adjust the edge detection thresholds.">edit edgemap</button>
+	<div id="edgetools">
+		<em>canny threshold:</em><br />
+		<span id="show_lo"></span> - <span id="show_hi"></span>
+		<div id="slider-range"></div>
+		<form id='threshold' method="post" action="{% url do_canny specimen_id=specimen.pk %}">
+			{{edge_form.as_p}}
+			<input type="submit" value="update edge map" />
+		</form>		
+	</div>
+	<button id="isolate" help="Select the petal area in the image.">isolate petals</button>
+	<div id="info">
+		<h5>scale</h5>
+		<p id="scale">
 			{% if specimen.scale %}
 			{{specimen.scale}} pix/mm
 			{% else %}
 			undefined
 			{% endif %}
-		</dd>
-		<dt>circle radius</dt>
-		<dd id="radius">
+		</p>
+		<h5>circle radius</h5>
+		<p id="radius">
 			{% if specimen.circle_radius %}
 				{{specimen.get_radius}} 
 				{% if specimen.scale %}
@@ -74,13 +82,22 @@
 			{% else %}
 				undefined
 			{% endif %}
-		</dd>
-	</dl>
+		</p>
+		<h5>flower perimeter</h5>
+		<p>undefined</p>
+	</div>
+</div>
+<div id="viewport" class="grid_10 clearfix">
+	<img id="orig" src="{{specimen.image.url}}" />
+	<img id="edge" src="{{specimen.edge.url}}" />
+	<div id="status-bar" class="ui-helper-hidden ui-corner-br"></div>
 </div>
 <div class="clear"></div>
-<div class="grid_12">
+<div class="grid_6 prefix_2">
+	<h5>notes</h5>
 	<form method="post" action="{{specimen.get_absolute_url}}">
-	{{form.as_p}}
+	{{form.notes}}
+	<br />
 	<input type="submit" value="Submit" />
 	</form>
 </div>
@@ -91,6 +108,15 @@
 <script type="text/javascript" src="{{MEDIA_URL}}lib/jquery/Jcrop/jquery.Jcrop.min.js"></script>
 <script type="text/javascript">
 	jQuery(function($){
+		$('button','#tools').button();
+		$edge = $('#edge');
+		$edge_vis = $('#edge_vis').buttonset();
+		$('input[name="edge_opac"]','#edge_vis').change(
+			function(){
+				$edge.fadeTo('normal',parseFloat($('input[name="edge_opac"]:checked', '#edge_vis').val()));	
+			}
+		).change();
+		
 		$('form#threshold').submit(function() {
 		    $(this).ajaxSubmit({success: function(){
 				var timestamp = new Date().getTime();
@@ -100,8 +126,7 @@
 		    return false;
 		}); 
 		
-		$('form#threshold p').add($('form#threshold input[type=submit]')).hide(0)
-		$('form#threshold').prepend($('<div/>').attr('id','slider-range'))
+		$('form#threshold').hide(0)
 		$("#slider-range").slider({
 			range: true,
 			min: 0,
@@ -110,61 +135,62 @@
 			slide: function(event, ui) {
 				$('#id_lo').val(ui.values[0]);
 				$('#id_hi').val(ui.values[1]);
+				$('#show_lo').text(ui.values[0]);
+				$('#show_hi').text(ui.values[1]);
 			},
 			change: function(event, ui){
-				$('form#threshold').submit()
+				$('form#threshold').submit();
 			}
 		});
+
 		$('#id_lo').val($('#slider-range').slider('values', 0));
 		$('#id_hi').val($('#slider-range').slider('values', 1));
+		$('#show_lo').text($('#slider-range').slider('values', 0));
+		$('#show_hi').text($('#slider-range').slider('values', 1));
 		
-		$('#dim').add($('#measure')).attr('checked', false)
-		$('#vis').attr('checked', !!$('#edge').length)
-		
-		$('#vis').change(
+		$('#edit_edge').bind('deactivate',
 			function(){
-				$edge = $('#edge')
-				if ($edge.length == true){
-					if($(this).is(':checked')){
-						$edge.show()
-					} else {
-						$edge.hide()
-					}
-				}
+				$(this).removeClass('ui-state-highlight');
+				$('#edgetools','#tools').hide();
 			}
-		).change();
-		
-		$('#dim').change(function(){
-			$edge = $('#edge')
-			if ($edge.length == true){
-				opac = $(this).is(':checked') ? 0.60 : 1;
-				$edge.fadeTo('fast', opac)
-			}
-		}).change();
-		$jcropper = null;
-		$('#measure').change(
+		).bind('activate',
 			function(){
-				if($(this).is(':checked')){
-					$jcropper = $.Jcrop('#edge',{
+				$(this).addClass('ui-state-highlight');
+				$('#edgetools','#tools').show();
+			}
+		).trigger('deactivate');
+		
+		$('#isolate').bind('activate',
+			function(){
+				$(this).addClass('ui-state-highlight');
+				$('#opac_high','#edge_vis').attr('checked','checked').change();
+				$edge_vis.buttonset('refresh');
+				$edge_vis.buttonset('disable');
+				
+				$jcropper = $.Jcrop('#edge',{
 //						aspectRatio: 1,
-						onSelect: function(c){
-							url = '{% url calc_bbox specimen_id=specimen.pk %}'
-							$.post(url, c, function(data, status){
-								if ('success' == status){
-									if(!!data.scale){
-										radius = data.radius+' mm';
-									} else {
-										radius = data.radius+' pix';
-									}
-									$('#radius').text(radius);
+					onRelease: function(){$('#measure').trigger('deactivate')},
+					onSelect: function(c){
+						url = '{% url calc_bbox specimen_id=specimen.pk %}'
+						$.post(url, c, function(data, status){
+							if ('success' == status){
+								if(!!data.scale){
+									radius = data.radius+' mm';
+								} else {
+									radius = data.radius+' pix';
 								}
-							}, 'json');
-						},
-						bgOpacity: 0.2
-					});	
-				} else {
-					$jcropper.destroy();
-				}
+								$('#radius').text(radius);
+							}
+						}, 'json');
+					},
+					bgOpacity: 0.2
+				});
+			}
+		).bind('deactivate',
+			function(){
+				$(this).removeClass('ui-state-highlight');
+				$jcropper.destroy();
+				$edge_vis.buttonset('enable');
 			}
 		);
 		SCALE = []
@@ -177,8 +203,9 @@
 			var hyp = Math.sqrt(x*x + y*y);
 			return hyp;
 		}
-		$('#capture').change(function(){
-			if($(this).is(':checked')){
+		$('#set_scale').bind('activate',
+			function(){
+				$(this).addClass('ui-state-highlight');
 				$('#viewport').css('cursor','crosshair').click(function(e){
 			        var x = e.pageX - this.offsetLeft;
 			        var y = e.pageY - this.offsetTop;
@@ -188,10 +215,13 @@
 					SCALE.push({'x':x,'y':y})
 			        $('#scale').text("X: " + x + " Y: " + y);
 					if(2 == SCALE.length){
-						$('#capture').attr('checked', false).change();
+						$('#set_scale').trigger('deactivate');
 					} 
 			    });
-			} else {
+			}
+		).bind('deactivate',
+			function(){
+				$(this).removeClass('ui-state-highlight');
 				$('#viewport').css('cursor','default').unbind('click');
 				if(2 == SCALE.length){
 					pixels = distance(SCALE[0].x,SCALE[0].y,SCALE[1].x,SCALE[1].y)
@@ -208,40 +238,27 @@
 					SCALE = []
 				}
 			}
-		});
-		
-		app = new function Application(){
-			DEBUG = true
-			this.mode = {
-				VIEW: 'view mode',
-				EDGE: 'edge mode',
-				AREA: 'area mode',
-				SCALE: 'scale mode',
+		);
+		$bar = $('#status-bar','#viewport');
+		$bar.css('opacity', 0.6);
+		$('.ui-button','#tools').click(function(){
+			$(this).trigger('blur');
+			$('#tools .ui-state-highlight').not($(this)
+				).trigger('deactivate');
+			if($(this).is('.ui-state-highlight')){
+				$(this).trigger('deactivate');
+			} else {
+				$(this).trigger('activate');
 			}
 			
-			_mode = this.mode.VIEW;
-			
-			this.getMode = function(){
-				return _mode;
+		}).hover(
+			function(){
+				$bar.text($(this).attr('help')).show('blind','fast');
+			},
+			function(){
+				$bar.empty().hide('blind','fast');
 			}
-			
-			this.setMode = function(m){
-				match = false
-				for(modeName in this.mode){
-					if (m == this.mode[modeName]){
-						match = true
-						break;
-					}
-				}
-				if(!match){
-					throw 'invalid app mode';
-				}
-				_mode = m;
-				if(DEBUG){ console.log('set mode: '+this.getMode())}
-				return this;
-			}
-		};
-		
+		);		
 	});
 </script>
 {% endblock %}

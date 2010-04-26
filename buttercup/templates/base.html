@@ -12,7 +12,7 @@
 <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/text.css" />
 <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/960.css" />
 <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/layout.css" />
-<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/ui/smoothness/jquery-ui-1.7.2.custom.css" />
+<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/ui/ui-darkness/jquery-ui-1.8.custom.css" />
 {% endblock %}
 
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% endblock %}" />{% endif %}
@@ -22,8 +22,8 @@
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 
 {% block head_js %}
-<script type="text/javascript" src="{{MEDIA_URL}}lib/jquery/jquery-1.4.min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}lib/jquery/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
 {% endblock %}
 
 </head>
@@ -31,13 +31,21 @@
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 
 <!-- Container -->
-<div id="container" class="">
+<div id="container" class="container_12">
     {% if not is_popup %}
     <!-- Header -->
-    <div id="header">
-        <div id="branding">
+    <div id="header" class="container_12">
+        <div id="branding" class="grid_3">
         {% block branding %}<h1 id="site-name">petal picker</h1>{% endblock %}
         </div>
+		<ul id="nav" class="grid_9">
+			<li>
+				<a href="{% url specimen_list %}">list</a>
+			</li>
+			<li>
+				<a href="{% url buttercup.specimen.views.new %}">new specimen</a>
+			</li>
+		</ul>
     </div>
 	
     <!-- END Header -->
@@ -45,25 +53,19 @@
 
     <!-- Content -->
 	
-	<ul id="messagelist" class="{% if messages %}ui-state-highlight{% endif %}">
+	<ul id="messagelist" class="grid_10 prefix_1 suffix_1 ui-state-highlight" style="{% if not messages %}display: none;{% endif %}">
 		{% for message in messages %}
 		<li>{{ message }}</li>
 		{% endfor %}
 	</ul>
-	
-	<ul id="global-links">
-		{% include "global-links.html" %}
-	</ul>
-	<ul id="app-links">
-		{% include "app-links.html" %}
-	</ul>
-	
+	<div class="clear"></div>
     <div id="content" class="container_12">
         {% block pretitle %}{% endblock %}
-		
+		{% comment %}
         {% block content_title %}
 		{% if title %}<h1 class="">{{ title }}</h1>{% endif %}
 		{% endblock %}
+		{% endcomment %}
 		{% block sidebar %}{% endblock %}
         {% block content %}
         {% block object-tools %}{% endblock %}
@@ -71,10 +73,12 @@
         {% endblock %}
     </div>
     <!-- END Content -->
-
+	<div class="clear"></div>
     {% block footer %}
-	<div id="footer">
-    	<a style="float:right;" href="http://www.djangoproject.com/"><img src="http://media.djangoproject.com/img/badges/djangomade124x25_grey.gif" border="0" alt="Made with Django." title="Made with Django." /></a>
+	<div id="footer" class="container_12 clearfix">
+		<div class="grid_2 prefix_10">
+	    	<a href="http://www.djangoproject.com/"><img src="http://media.djangoproject.com/img/badges/djangomade124x25_grey.gif" border="0" alt="Made with Django." title="Made with Django." /></a>
+		</div>
 	</div>
 	{% endblock %}
 </div>

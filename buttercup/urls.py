@@ -7,6 +7,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',                   
     (r'^specimen/', include('buttercup.specimen.urls')),
+    (r'^api/', include('buttercup.api.urls')),
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
     (r'^admin/', include(admin.site.urls)),
     (r'^$', include('buttercup.specimen.urls')),

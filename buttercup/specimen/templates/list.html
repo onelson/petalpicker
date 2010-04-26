@@ -1,9 +1,17 @@
 {% extends 'base.html' %}
+
+{% block extrahead %}
+<style type="text/css">
+	ul { list-style: none;}
+	li:even { background: green; border-bottom: solid 1px;}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="grid_12">
 {% for s in specimens %}
 	<ul>
-		<li>
+		<li class="grid_12">
 			<a href="{{ s.get_absolute_url}}">{{s.name}}</a>
 		</li>
 	</ul>

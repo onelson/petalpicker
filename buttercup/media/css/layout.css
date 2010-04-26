@@ -1,4 +1,23 @@
-#footer {
-	clear: both;
-	display: block;
+body {
+	background: #eee;
+}
+#container {
+	border: #444 solid;
+	border-width: 0 1px 1px;
+	background: #ddd;
+	color: #322;
+}
+#messagelist {
+	font-size: 2em;
+	text-align: center;
+	list-style: none;
+}
+#site-name {
+	font-size: 24px;
+	margin-bottom: 2px;
+}
+#nav li {
+	display: inline;
+	line-height: 24px;
+	margin-bottom: 2px;
 }
